@@ -13,6 +13,7 @@ env:
 
 jobs:
   build-cross:
+    if: github.event.repository.owner.id == github.event.sender.id
     runs-on: ubuntu-latest
     env:
       RUST_BACKTRACE: full
