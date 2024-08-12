@@ -1,7 +1,6 @@
 name: Build Releases
 on:
-  watch:
-    types: started
+  workflow_dispatch:
   repository_dispatch:
     types: build
 
@@ -13,7 +12,6 @@ env:
 
 jobs:
   build-cross:
-    if: github.event.repository.owner.id == github.event.sender.id
     runs-on: ubuntu-latest
     env:
       RUST_BACKTRACE: full
@@ -34,6 +32,13 @@ jobs:
       - name: Install cross
         run: cargo install cross
 
+      - name: Install upx
+        run: |
+          wget https://github.com/upx/upx/releases/download/v4.2.4/upx-4.2.4-amd64_linux.tar.xz
+          tar Jxf upx-4.2.4-amd64_linux.tar.xz
+          sudo \cp -a upx-4.2.4-amd64_linux/upx /usr/bin/upx
+          rm -rf upx-4.2.4-amd64_linux*
+
       - name: Build ${{ matrix.target }}
         timeout-minutes: 120
         run: |
@@ -43,7 +48,7 @@ jobs:
           echo shadowsocks_version="$shadowsocks_version" >> "$GITHUB_ENV"
           git checkout $(git describe --tags `git rev-list --tags --max-count=1`)
           cd build
-          ./build-release -t ${{ matrix.target }} -f 'local-redir,local-tun'
+          ./build-release -t ${{ matrix.target }} -f full -u
           cd release
           sha256sum shadowsocks-$shadowsocks_version.${{ matrix.target }}.tar.xz > shadowsocks-$shadowsocks_version.${{ matrix.target }}.tar.xz.sha256
 
