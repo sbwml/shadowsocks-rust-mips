@@ -12,7 +12,7 @@ env:
 
 jobs:
   build-cross:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       RUST_BACKTRACE: full
     strategy:
